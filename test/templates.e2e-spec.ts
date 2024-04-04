@@ -102,6 +102,12 @@ describe("TemplatesController (e2e)", () => {
       });
   });
 
+  it("should return 404 when a template is not found", async () => {
+    return request(app.getHttpServer())
+      .get("/templates/660ef95ac1ae45269c62a782")
+      .expect(404);
+  });
+
   it("should only update the provided fields in a template", async () => {
     const { body: template1 } = await request(app.getHttpServer())
       .post("/templates")
@@ -137,6 +143,16 @@ describe("TemplatesController (e2e)", () => {
         name: "template 2",
         body: "template 2 description",
       });
+  });
+
+  it("should return 404 when a template to update is not found", async () => {
+    return request(app.getHttpServer())
+      .patch("/templates/660ef95ac1ae45269c62a782")
+      .send({
+        name: "template",
+        body: "template description",
+      })
+      .expect(404);
   });
 
   it("should delete a template", async () => {
