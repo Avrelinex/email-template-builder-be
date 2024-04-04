@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from "@nestjs/common";
+
 import { TemplatesService } from "./templates.service";
 import { CreateTemplateDto } from "./dto/create-template.dto";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
@@ -26,20 +28,32 @@ export class TemplatesController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.templatesService.findOne(+id);
+  async findOne(@Param("id") id: string) {
+    const template = await this.templatesService.findOne(id);
+
+    if (!template) {
+      throw new NotFoundException();
+    }
+
+    return template;
   }
 
   @Patch(":id")
-  update(
+  async update(
     @Param("id") id: string,
     @Body() updateTemplateDto: UpdateTemplateDto
   ) {
-    return this.templatesService.update(+id, updateTemplateDto);
+    const template = await this.templatesService.update(id, updateTemplateDto);
+
+    if (!template) {
+      throw new NotFoundException();
+    }
+
+    return template;
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.templatesService.remove(+id);
+    return this.templatesService.remove(id);
   }
 }

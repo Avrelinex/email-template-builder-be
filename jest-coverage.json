@@ -15,5 +15,8 @@
     "coverage",
     "src/main.ts"
   ],
-  "coverageDirectory": "./coverage"
+  "coverageDirectory": "./coverage",
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  }
 }

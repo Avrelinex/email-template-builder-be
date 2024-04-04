@@ -1,42 +1,34 @@
 import { Injectable } from "@nestjs/common";
+
 import { CreateTemplateDto } from "./dto/create-template.dto";
 import { UpdateTemplateDto } from "./dto/update-template.dto";
-import { Template } from "./entities/template.entity";
+import { TemplatesRepository } from "./templates.repository";
+import { Template } from "./schemas/template.schema";
 
 @Injectable()
 export class TemplatesService {
-  private templates: Template[] = [];
+  constructor(private readonly templatesRepository: TemplatesRepository) {}
 
-  create(createTemplateDto: CreateTemplateDto) {
-    const id = this.templates.length + 1;
-
-    const template = new Template();
-    template.id = id;
-    template.name = createTemplateDto.name;
-    template.body = createTemplateDto.body;
-
-    this.templates.push(template);
-
-    return template;
+  create(createTemplateDto: CreateTemplateDto): Promise<Template> {
+    return this.templatesRepository.create(createTemplateDto);
   }
 
-  findAll() {
-    return this.templates;
+  findAll(): Promise<Template[]> {
+    return this.templatesRepository.findAll();
   }
 
-  findOne(id: number) {
-    return this.templates.find((template) => template.id === id);
+  findOne(id: string): Promise<Template | null> {
+    return this.templatesRepository.findById(id);
   }
 
-  update(id: number, updateTemplateDto: UpdateTemplateDto) {
-    this.templates = this.templates.map((template) =>
-      template.id === id ? { ...template, ...updateTemplateDto } : template
-    );
-
-    return this.findOne(id);
+  update(
+    id: string,
+    updateTemplateDto: UpdateTemplateDto
+  ): Promise<Template | null> {
+    return this.templatesRepository.updateById(id, updateTemplateDto);
   }
 
-  remove(id: number) {
-    this.templates = this.templates.filter((template) => template.id !== id);
+  remove(id: string): Promise<Template | null> {
+    return this.templatesRepository.remove(id);
   }
 }

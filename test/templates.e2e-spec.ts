@@ -1,57 +1,83 @@
+import * as request from "supertest";
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
-import { AppModule } from "./../src/app.module";
+import { Connection } from "mongoose";
 
-describe("AppController (e2e)", () => {
+import { AppModule } from "@/app.module";
+import { DatabaseService } from "@/database/database.service";
+
+describe("TemplatesController (e2e)", () => {
   let app: INestApplication;
+  let dbConnection: Connection;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    dbConnection = moduleFixture
+      .get<DatabaseService>(DatabaseService)
+      .getConnection();
   });
 
-  it("should create a template", () => {
-    return request(app.getHttpServer())
+  afterAll(async () => {
+    await dbConnection.close();
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    const allCollections = await dbConnection.db.listCollections().toArray();
+
+    for (const collection of allCollections) {
+      await dbConnection.collection(collection.name).deleteMany({});
+    }
+  });
+
+  it("should create a template", async () => {
+    const { body: template } = await request(app.getHttpServer())
       .post("/templates")
       .send({
         name: "template",
         body: "template description",
       })
-      .expect(201)
-      .expect({
-        id: 1,
-        name: "template",
-        body: "template description",
-      });
+      .expect(201);
+
+    expect(template).toEqual({
+      id: expect.any(String),
+      name: "template",
+      body: "template description",
+    });
   });
 
   it("should find all templates", async () => {
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template 1",
-      body: "template 1 description",
-    });
+    const { body: template1 } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template 1",
+        body: "template 1 description",
+      });
 
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template 2",
-      body: "template 2 description",
-    });
+    const { body: template2 } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template 2",
+        body: "template 2 description",
+      });
 
     return request(app.getHttpServer())
       .get("/templates")
       .expect(200)
       .expect([
         {
-          id: 1,
+          id: template1.id,
           name: "template 1",
           body: "template 1 description",
         },
         {
-          id: 2,
+          id: template2.id,
           name: "template 2",
           body: "template 2 description",
         },
@@ -59,51 +85,74 @@ describe("AppController (e2e)", () => {
   });
 
   it("should find a template", async () => {
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template 1",
-      body: "template 1 description",
-    });
+    const { body: template } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template 1",
+        body: "template 1 description",
+      });
 
-    return request(app.getHttpServer()).get("/templates/1").expect(200).expect({
-      id: 1,
-      name: "template 1",
-      body: "template 1 description",
-    });
+    return request(app.getHttpServer())
+      .get(`/templates/${template.id}`)
+      .expect(200)
+      .expect({
+        id: template.id,
+        name: "template 1",
+        body: "template 1 description",
+      });
   });
 
   it("should only update the provided fields in a template", async () => {
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template",
-      body: "template description",
-    });
+    const { body: template1 } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template",
+        body: "template description",
+      });
 
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template 2",
-      body: "template 2 description",
-    });
+    const { body: template2 } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template 2",
+        body: "template 2 description",
+      });
 
-    return request(app.getHttpServer())
-      .patch("/templates/1")
+    await request(app.getHttpServer())
+      .patch(`/templates/${template1.id}`)
       .send({
         body: "updated template description",
       })
       .expect(200)
       .expect({
-        id: 1,
+        id: template1.id,
         name: "template",
         body: "updated template description",
+      });
+
+    return request(app.getHttpServer())
+      .get(`/templates/${template2.id}`)
+      .expect(200)
+      .expect({
+        id: template2.id,
+        name: "template 2",
+        body: "template 2 description",
       });
   });
 
   it("should delete a template", async () => {
-    await request(app.getHttpServer()).post("/templates").send({
-      name: "template",
-      body: "template description",
-    });
+    const { body: template } = await request(app.getHttpServer())
+      .post("/templates")
+      .send({
+        name: "template",
+        body: "template description",
+      });
+
+    await request(app.getHttpServer())
+      .delete(`/templates/${template.id}`)
+      .expect(200);
 
     return request(app.getHttpServer())
-      .delete("/templates/1")
-      .expect(200)
-      .expect({});
+      .get(`/templates/${template.id}`)
+      .expect(404);
   });
 });
