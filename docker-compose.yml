@@ -16,6 +16,8 @@ services:
     depends_on:
       - email-template-builder-db
     env_file: ./.env.docker
+    volumes:
+      - .:/usr/src/app
 
   email-template-builder-fe:
     container_name: email-template-builder-fe
@@ -24,6 +26,8 @@ services:
       - 8080:8080
     depends_on:
       - email-template-builder-be
+    volumes:
+      - ../email-template-builder-fe:/usr/src/app
 
 volumes:
   mongodb_data_container:
