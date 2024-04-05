@@ -7,7 +7,19 @@ Back end for email template builder.
 $ npm install
 ```
 
-## Running the app
+## Run with docker-compose
+
+> Following folders should be in the same directory:
+> - email-template-builder-fe
+> - email-template-builder-be
+
+```bash
+$ docker-compose up
+```
+
+## Run without docker
+
+### Running the app
 
 ```bash
 # development
@@ -20,13 +32,15 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Run mongo db
+### Run mongo db
 
 ```bash
 docker run --name mongo -p 27017:27017 -d mongo
 ```
 
 ## Test
+
+> For e2e tests and coverage, you need to have a running mongo db instance on port 27017.
 
 ```bash
 # unit tests
