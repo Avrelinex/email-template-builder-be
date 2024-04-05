@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  email-template-builder-db:
+    container_name: email-template-builder-db
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+
+  email-template-builder-be:
+    container_name: email-template-builder-be
+    build: .
+    ports:
+      - 3000:3000
+    depends_on:
+      - email-template-builder-db
+    env_file: ./.env.docker
+
+  email-template-builder-fe:
+    container_name: email-template-builder-fe
+    build: ../email-template-builder-fe
+    ports:
+      - 8080:8080
+    depends_on:
+      - email-template-builder-be
+
+volumes:
+  mongodb_data_container:
