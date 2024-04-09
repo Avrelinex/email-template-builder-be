@@ -18,6 +18,8 @@ services:
     env_file: ./.env.docker
     volumes:
       - .:/usr/src/app
+      - be_node_modules:/usr/src/app/node_modules
+      - uploads:/usr/src/app/uploads
 
   email-template-builder-fe:
     container_name: email-template-builder-fe
@@ -26,8 +28,13 @@ services:
       - 8080:8080
     depends_on:
       - email-template-builder-be
+    env_file: ../email-template-builder-fe/.env
     volumes:
       - ../email-template-builder-fe:/usr/src/app
+      - fe_node_modules:/usr/src/app/node_modules
 
 volumes:
   mongodb_data_container:
+  uploads:
+  be_node_modules:
+  fe_node_modules:

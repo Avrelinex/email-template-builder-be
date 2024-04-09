@@ -2,11 +2,9 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
   NotFoundException,
   Param,
-  ParseFilePipe,
   Post,
   Put,
   Res,
@@ -15,31 +13,9 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Response } from "express";
-import { diskStorage } from "multer";
-import * as path from "path";
 import { ImagesService } from "./images.service";
 import { UpdateImageDto } from "./dto/update-image.dto";
-
-const imageRoot = "./uploads/images";
-
-const storage = diskStorage({
-  destination: imageRoot,
-  filename: (req, file, cb) => {
-    const filename =
-      path.parse(file.originalname).name.replace(/\s/g, "") + Date.now();
-    const extension = path.parse(file.originalname).ext;
-
-    cb(null, `${filename}${extension}`);
-  },
-});
-
-const parseFilePipe = new ParseFilePipe({
-  validators: [
-    new FileTypeValidator({
-      fileType: /image\/(jpeg|png)/,
-    }),
-  ],
-});
+import { FileStorageService } from "@/file-storage/file-storage.service";
 
 @Controller("images")
 export class ImagesController {
@@ -58,7 +34,7 @@ export class ImagesController {
       throw new NotFoundException();
     }
 
-    res.sendFile(image.filename, { root: imageRoot });
+    res.sendFile(image.filename, { root: FileStorageService.imageRoot });
   }
 
   @Put(":id")
@@ -76,9 +52,12 @@ export class ImagesController {
   }
 
   @Post("upload")
-  @UseInterceptors(FileInterceptor("file", { storage }))
+  @UseInterceptors(
+    FileInterceptor("file", { storage: FileStorageService.storage })
+  )
   uploadFile(
-    @UploadedFile(parseFilePipe) file: Express.Multer.File,
+    @UploadedFile(FileStorageService.parseFilePipe)
+    file: Express.Multer.File,
     @Body("displayName") displayName: string
   ) {
     return this.imagesService.create({
