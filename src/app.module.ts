@@ -3,6 +3,8 @@ import { ConfigModule } from "@nestjs/config";
 
 import { TemplatesModule } from "./templates/templates.module";
 import { DatabaseModule } from "./database/database.module";
+import { ImagesModule } from "./images/images.module";
+import { FileStorageModule } from "./file-storage/file-storage.module";
 
 @Module({
   imports: [
@@ -10,7 +12,9 @@ import { DatabaseModule } from "./database/database.module";
       isGlobal: true,
     }),
     TemplatesModule,
+    ImagesModule,
     DatabaseModule,
+    FileStorageModule,
   ],
   controllers: [],
   providers: [],
