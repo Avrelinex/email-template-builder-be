@@ -37,6 +37,17 @@ export class ImagesController {
     res.sendFile(image.filename, { root: FileStorageService.imageRoot });
   }
 
+  @Get(":id/info")
+  async findOneInfo(@Param("id") id: string) {
+    const image = await this.imagesService.findOne(id);
+
+    if (!image) {
+      throw new NotFoundException();
+    }
+
+    return image;
+  }
+
   @Put(":id")
   async update(
     @Param("id") id: string,
