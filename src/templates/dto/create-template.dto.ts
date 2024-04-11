@@ -6,4 +6,7 @@ export class CreateTemplateDto {
 
   @Allow()
   body: string;
+
+  @Allow()
+  state: string;
 }

@@ -18,6 +18,9 @@ export class Template {
 
   @Prop()
   body: string;
+
+  @Prop()
+  state: string;
 }
 
 export const TemplateSchema = SchemaFactory.createForClass(Template);
