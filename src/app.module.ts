@@ -5,6 +5,7 @@ import { TemplatesModule } from "./templates/templates.module";
 import { DatabaseModule } from "./database/database.module";
 import { ImagesModule } from "./images/images.module";
 import { FileStorageModule } from "./file-storage/file-storage.module";
+import { EmailGeneratorModule } from "./email-generator/email-generator.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FileStorageModule } from "./file-storage/file-storage.module";
     ImagesModule,
     DatabaseModule,
     FileStorageModule,
+    EmailGeneratorModule,
   ],
   controllers: [],
   providers: [],
