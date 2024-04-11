@@ -14,5 +14,6 @@ import { TemplatesRepository } from "./templates.repository";
   ],
   controllers: [TemplatesController],
   providers: [TemplatesService, TemplatesRepository],
+  exports: [TemplatesService],
 })
 export class TemplatesModule {}
